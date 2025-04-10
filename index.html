@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio Controle de Infecção Hospitalar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .game-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            width: 350px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        #answers {
+            display: flex;
+            flex-direction: column;
+        }
+
+        button {
+            background-color: rgba(59, 59, 0, 0.212);
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: rgba(243, 243, 78, 1);
+        }
+
+        .correct {
+            background-color: #4CAF50; /* Verde */
+        }
+
+        .incorrect {
+            background-color: #f44336; /* Vermelho */
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #result {
+            font-size: 20px;
+            color: #4CAF50;
+        }
+
+        #scoreboard {
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Desafio Controle de Infecção Hospitalar</h1>
+        <div id="question-container">
+            <h2 id="question"></h2>
+            <div id="answers"></div>
+            <button id="next-btn" class="hidden" onclick="nextQuestion()">Próxima</button>
+        </div>
+        <div id="result" class="hidden">
+            <h3>Você completou o jogo!</h3>
+            <button onclick="restartGame()">Reiniciar</button>
+        </div>
+        <div id="scoreboard">
+            <h4>Pontuação: <span id="score">0</span></h4>
+        </div>
+    </div>
+
+    <footer>
+        <p>Desenvolvido por Zélia Vieira</p>
+    </footer>
+
+    <script>
+        const questions = [
+            { question: "O que é a CCIH?", options: ["Grupo que cria e aplica medidas para prevenir e controlar infecções hospitalares", "Grupo de administração hospitalar", "Grupo de estudo sobre microbiologia", "Grupo de pesquisa em medicina"], answer: 0 },
+            { question: "Quando foi criada a CCIH no Brasil?", options: ["Na década de 1980", "Em 1990", "Em 2000", "Na década de 1970"], answer: 0 },
+            { question: "Quem participa da CCIH?", options: ["Enfermeiros, médicos, farmacêuticos, microbiologistas e técnicos", "Somente médicos", "Somente enfermeiros", "Somente farmacêuticos"], answer: 0 },
+            { question: "O que é feito na enfermagem para prevenir infecções?", options: ["Orientar sobre higiene, cuidados com feridas e uso correto de medicamentos", "Administrar medicamentos", "Realizar cirurgias", "Nenhuma das alternativas"], answer: 0 },
+            { question: "O que é Antissepsia?", options: ["Uso de substâncias químicas para reduzir microrganismos na pele viva", "Uso de substâncias para limpar ambientes", "Uso de antibióticos para tratar infecções", "Uso de vacinas para prevenção de doenças"], answer: 0 },
+            { question: "Qual é a função da CME (Central de Material e Esterilização)?", options: ["Garantir a limpeza, desinfecção e esterilização segura de materiais hospitalares", "Administrar medicamentos", "Fazer cirurgias", "Realizar exames laboratoriais"], answer: 0 },
+            { question: "Quais são os tipos de artigos hospitalares?", options: ["Críticos, semi-críticos e não críticos", "Cirúrgicos e laboratoriais", "Desinfetantes e esterilizantes", "Áreas críticas e não críticas"], answer: 0 },
+            { question: "O que é a carga microbiana?", options: ["Quantidade de microrganismos presentes em um material ou superfície", "Quantidade de produtos de limpeza", "Quantidade de pacientes infectados", "Quantidade de médicos presentes no hospital"], answer: 0 },
+            { question: "O que é a profilaxia pós-exposição (PEP)?", options: ["Uso de antirretrovirais após contato com sangue contaminado", "Uso de antibióticos para tratar infecções", "Uso de vacinas contra doenças infecciosas", "Uso de desinfetantes para limpeza"], answer: 0 },
+            { question: "Qual é a principal diferença entre Antissepsia e Assepsia?", options: ["Antissepsia é o uso de substâncias químicas na pele viva e Assepsia evita a entrada de microrganismos", "Ambas se referem ao uso de antibióticos", "Assepsia envolve o uso de desinfetantes e Antissepsia é o uso de luvas", "Antissepsia se refere ao uso de medicamentos e Assepsia ao controle de infecções"], answer: 0 },
+            { question: "O que significa CME?", options: ["Central de Material e Esterilização", "Central de Medicamentos e Esterilização", "Centro de Monitoramento e Esterilização", "Centro de Material e Esterilização"], answer: 0 },
+            { question: "Qual das seguintes alternativas é uma prática de prevenção de infecções hospitalares?", options: ["Higienização correta das mãos", "Realização de cirurgias sem uso de EPIs", "Uso de antibióticos indiscriminadamente", "Visitação irrestrita aos pacientes"], answer: 0 },
+            { question: "Qual é a importância da vacinação para os profissionais de saúde?", options: ["Prevenir doenças que podem ser transmitidas aos pacientes", "Aumentar a imunidade contra infecções hospitalares", "Prevenir doenças de inverno", "Evitar a transmissão de doenças para outros profissionais"], answer: 0 },
+            { question: "Qual é a finalidade do controle de infecção hospitalar?", options: ["Reduzir o risco de infecções para pacientes e profissionais de saúde", "Aumentar o tempo de internação dos pacientes", "Melhorar a qualidade da alimentação hospitalar", "Facilitar a liberação de medicamentos"], answer: 0 },
+            { question: "O que são artigos críticos em um hospital?", options: ["Artigos que penetram tecidos e precisam ser esterilizados", "Artigos usados em limpeza", "Artigos descartáveis", "Artigos de uso único"], answer: 0 },
+            { question: "O que caracteriza uma infecção hospitalar?", options: ["Infecção adquirida durante o tratamento no hospital", "Infecção adquirida fora do hospital", "Infecção adquirida após a alta do hospital", "Infecção relacionada ao tratamento domiciliar"], answer: 0 },
+            { question: "O que é a asepsia?", options: ["Conjunto de práticas que evitam a entrada de microrganismos", "Uso de antibióticos para eliminar infecções", "Uso de substâncias químicas para desinfecção", "Desinfecção de superfícies hospitalares"], answer: 0 },
+            { question: "Qual a principal diferença entre desinfecção e esterilização?", options: ["Esterilização elimina todos os microrganismos, incluindo esporos", "Desinfecção elimina todos os microrganismos, incluindo esporos", "Desinfecção é mais eficaz que esterilização", "Esterilização não elimina microrganismos"], answer: 0 },
+            { question: "Quando deve ser realizado o banho pré-operatório?", options: ["Antes de procedimentos cirúrgicos", "Durante a alta hospitalar", "Após a cirurgia", "Durante o tratamento de infecções hospitalares"], answer: 0 },
+            { question: "Qual é o objetivo da tricotomia pré-operatória?", options: ["Facilitar a limpeza e reduzir o risco de infecção", "Aumentar a estética do paciente", "Reduzir o desconforto do paciente", "Facilitar a circulação sanguínea"], answer: 0 },
+            { question: "Quais são as etapas do processo de descontaminação de materiais?", options: ["Limpeza, desinfecção e esterilização", "Limpeza e embalagem", "Esterilização e secagem", "Limpeza e inspeção"], answer: 0 },
+            { question: "Quais as áreas que compõem o processo de esterilização na CME?", options: ["Área suja, limpa e estéril", "Área médica e técnica", "Área hospitalar e ambulatorial", "Área de laboratório e hospitalar"], answer: 0 },
+            { question: "Qual a função do controle de validade dos materiais na CME?", options: ["Garantir que os materiais não ultrapassem o prazo de validade", "Reduzir os custos hospitalares", "Garantir a segurança dos pacientes", "Facilitar o uso de materiais mais antigos"], answer: 0 },
+            { question: "O que é a profilaxia?", options: ["Medidas para prevenir doenças", "Tratamento de doenças já instaladas", "Uso de medicamentos para aliviar sintomas", "Aumento da imunidade contra infecções"], answer: 0 },
+            { question: "O que são as infecções relacionadas à assistência à saúde (IRAS)?", options: ["Infecções adquiridas durante o cuidado hospitalar", "Infecções adquiridas fora do ambiente hospitalar", "Infecções causadas por medicamentos", "Infecções por falta de alimentação adequada"], answer: 0 },
+            { question: "O que é a vigilância epidemiológica?", options: ["Monitoramento e controle das doenças no hospital", "Monitoramento das atividades administrativas", "Controle das despesas hospitalares", "Controle da qualidade da alimentação hospitalar"], answer: 0 },
+            { question: "Qual a diferença entre antibiótico e antivírus?", options: ["Antibióticos combatem infecções bacterianas e antivírus combatem infecções virais", "Antibióticos combatem vírus e antivírus combatem bactérias", "Antibióticos são mais eficazes que antivírus", "Não há diferença entre ambos"], answer: 0 },
+            { question: "Qual é o papel do enfermeiro na prevenção de infecções hospitalares?", options: ["Orientar pacientes e familiares sobre cuidados e higiene", "Realizar cirurgias", "Administrar medicamentos", "Acompanhar os pacientes durante a internação"], answer: 0 },
+            { question: "O que caracteriza um ambiente hospitalar seguro em termos de infecção?", options: ["Limpeza rigorosa e controle de infecção", "Uso exclusivo de medicamentos", "Ausência de visitantes no hospital", "Isolamento total de pacientes"], answer: 0 },
+            { question: "Quais são as fontes de infecção no hospital?", options: ["Pacientes, profissionais de saúde e ambientes contaminados", "Somente os pacientes", "Somente os profissionais de saúde", "Somente os equipamentos hospitalares"], answer: 0 }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        function loadQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            document.getElementById("question").textContent = currentQuestion.question;
+            const answersDiv = document.getElementById("answers");
+            answersDiv.innerHTML = "";
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.onclick = () => checkAnswer(index);
+                answersDiv.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            const currentQuestion = questions[currentQuestionIndex];
+            const buttons = document.querySelectorAll("#answers button");
+            buttons.forEach((button, index) => {
+                if (index === currentQuestion.answer) {
+                    button.classList.add("correct");
+                } else {
+                    button.classList.add("incorrect");
+                    if (index === selectedIndex) {
+                        button.classList.add("incorrect");
+                    }
+                }
+                button.disabled = true;
+            });
+            if (selectedIndex === currentQuestion.answer) {
+                score++;
+                document.getElementById("score").textContent = score;
+            }
+            document.getElementById("next-btn").classList.remove("hidden");
+            isAnswered = true;
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+                document.getElementById("next-btn").classList.add("hidden");
+                isAnswered = false;
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById("question-container").classList.add("hidden");
+            document.getElementById("result").classList.remove("hidden");
+        }
+
+        function restartGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById("score").textContent = score;
+            document.getElementById("question-container").classList.remove("hidden");
+            document.getElementById("result").classList.add("hidden");
+            loadQuestion();
+        }
+
+        // Inicia o jogo
+        loadQuestion();
+    </script>
+</body>
+</html>
